@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ถึงคนที่รัก</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Sarabun:wght@300;400;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #10192e;
+    --navy-deep: #070d1c;
+    --gold: #c9a24b;
+    --gold-soft: #e6c977;
+    --blush: #e8b4b8;
+    --cream: #f7ecd9;
+    --wax: #8a1f2b;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background: radial-gradient(ellipse at 50% 0%, #16203a 0%, var(--navy) 45%, var(--navy-deep) 100%);
+    font-family:'Sarabun', sans-serif;
+    color: var(--cream);
+    overflow-x:hidden;
+  }
+
+  /* floating stars */
+  .stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  .star{
+    position:absolute; background:var(--gold-soft); border-radius:50%;
+    opacity:.55; animation: twinkle 3.5s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:.15; transform:scale(.8);}
+    50%{ opacity:.9; transform:scale(1.15);}
+  }
+
+  /* floating petals */
+  .petal{
+    position:fixed; top:-5%; z-index:1; pointer-events:none;
+    font-size: 1.1rem; color:var(--blush); opacity:.8;
+    animation: fall linear infinite;
+    filter: drop-shadow(0 0 4px rgba(232,180,184,.4));
+  }
+  @keyframes fall{
+    0%{ transform: translateY(-10vh) translateX(0) rotate(0deg); }
+    100%{ transform: translateY(110vh) translateX(40px) rotate(340deg); }
+  }
+
+  main{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 6vh 5vw 10vh;
+    text-align:center;
+  }
+
+  .eyebrow{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    letter-spacing:.35em; text-transform:uppercase;
+    font-size:.72rem; color: var(--gold-soft); opacity:.85;
+    margin-bottom: 1.1rem;
+  }
+
+  .counter-wrap{ margin-bottom: 3.2rem; }
+  .counter-num{
+    font-family:'Cormorant Garamond', serif; font-weight:600;
+    font-size: clamp(2.6rem, 8vw, 4.4rem);
+    color: var(--gold-soft);
+    line-height:1;
+    text-shadow: 0 0 30px rgba(201,162,75,.35);
+  }
+  .counter-label{
+    font-size:.85rem; letter-spacing:.15em; color: var(--cream); opacity:.6;
+    margin-top:.4rem;
+  }
+
+  /* ===== envelope ===== */
+  .envelope-stage{
+    perspective: 1400px;
+    width: min(360px, 82vw);
+    height: 240px;
+    cursor:pointer;
+    margin-bottom: 2rem;
+  }
+  .envelope{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition: transform .8s ease;
+  }
+  .env-back{
+    position:absolute; inset:0;
+    background: linear-gradient(160deg, #f4e6cb, var(--cream));
+    border-radius:6px;
+    box-shadow: 0 25px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.05);
+  }
+  .env-flap{
+    position:absolute; top:0; left:0; width:100%; height:50%;
+    background: linear-gradient(160deg, #ecd9b8, #dcc498);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform .9s cubic-bezier(.6,-0.2,.3,1.3);
+    z-index:5;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  }
+  .envelope-stage.open .env-flap{
+    transform: rotateX(178deg);
+  }
+  .wax{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-45%);
+    width:56px; height:56px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #b23244, var(--wax) 65%, #5c1119 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.08);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Dancing Script', cursive; font-size:1.4rem; color:#f3d9a8;
+    z-index:6; transition: opacity .3s ease, transform .5s ease;
+  }
+  .envelope-stage.open .wax{ opacity:0; transform:translate(-50%,-45%) scale(.4) rotate(25deg); }
+
+  .letter{
+    position:absolute; left:8%; right:8%; bottom:6%;
+    height: 78%;
+    background: var(--cream);
+    border-radius:3px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    transform: translateY(6%);
+    transition: transform .9s cubic-bezier(.2,.9,.3,1.1) .15s;
+    z-index:3;
+  }
+  .envelope-stage.open .letter{
+    transform: translateY(-58%);
+  }
+
+  .hint{
+    font-size:.78rem; color: var(--cream); opacity:.5;
+    letter-spacing:.08em; margin-top:.3rem;
+  }
+
+  /* ===== revealed letter content ===== */
+  .letter-content{
+    max-width: 560px;
+    background: linear-gradient(180deg, #fdf8ec, #f4e9d0);
+    color:#2c1d12;
+    border-radius: 4px;
+    padding: clamp(1.8rem, 5vw, 3.2rem) clamp(1.6rem, 6vw, 3.6rem);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.04);
+    text-align:left;
+    opacity:0; transform: translateY(24px);
+    transition: opacity .9s ease, transform .9s ease;
+    position:relative;
+  }
+  .letter-content.show{ opacity:1; transform:translateY(0); }
+  .letter-content::before{
+    content:"";
+    position:absolute; inset:14px;
+    border: 1px solid rgba(138,31,43,.18);
+    pointer-events:none;
+  }
+  .salutation{
+    font-family:'Dancing Script', cursive; font-weight:700;
+    font-size: clamp(1.7rem, 5vw, 2.3rem);
+    color: var(--wax); margin: 0 0 1.1rem;
+  }
+  .letter-body p{
+    font-family:'Cormorant Garamond', serif; font-size: clamp(1.1rem, 3vw, 1.3rem);
+    line-height:1.85; margin: 0 0 1.05rem; color:#3b2a1a;
+  }
+  .signoff{
+    font-family:'Dancing Script', cursive; font-weight:700; font-size:1.5rem;
+    color: var(--wax); margin-top:1.4rem; text-align:right;
+  }
+
+  .frog-img{
+    display:block; width:100%; border-radius:4px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.3);
+  }
+  .frog-caption{
+    font-family:'Dancing Script', cursive; font-weight:700;
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    color: var(--wax); text-align:center; margin: 1.2rem 0 0;
+  }
+
+  footer{
+    position:relative; z-index:2;
+    text-align:center; padding: 2rem 1rem 3rem;
+    font-size:.75rem; letter-spacing:.1em; color:var(--cream); opacity:.35;
+  }
+
+  /* ===== love question ===== */
+  .question-stage{
+    margin-top: 2.6rem;
+    opacity:0; transform: translateY(18px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .question-stage.show{ opacity:1; transform:translateY(0); }
+  .q-text{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+    color: var(--gold-soft); margin: 0 0 1.5rem;
+    text-shadow: 0 0 20px rgba(201,162,75,.3);
+  }
+  .btn-row{
+    position:relative;
+    display:flex; gap:1.4rem; justify-content:center; align-items:center;
+    min-height:70px;
+  }
+  .btn-yes, .btn-no{
+    font-family:'Sarabun', sans-serif; font-weight:600;
+    border:none; border-radius:999px;
+    padding:.9rem 2.3rem; font-size:1.02rem; cursor:pointer;
+    transition: transform .22s cubic-bezier(.3,1.4,.5,1), left .22s ease, top .22s ease, opacity .4s ease;
+  }
+  .btn-yes{
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+    color:#2c1d12;
+    box-shadow: 0 8px 22px rgba(201,162,75,.4);
+    z-index:61;
+  }
+  .btn-no{
+    background: transparent;
+    border: 1.5px solid var(--blush);
+    color: var(--blush);
+    z-index:61;
+  }
+
+  .red-overlay{
+    position:fixed; inset:0; z-index:50; pointer-events:none;
+    background: radial-gradient(circle at 50% 50%, rgba(190,20,20,.55), rgba(90,0,0,.92) 85%);
+    opacity:0;
+    transition: opacity .35s ease;
+  }
+
+  .result-overlay{
+    position:fixed; inset:0; z-index:70;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(160deg, var(--navy-deep), var(--navy) 70%);
+    opacity:0; pointer-events:none;
+    transition: opacity .7s ease;
+    text-align:center; padding:2rem;
+  }
+  .result-overlay.show{ opacity:1; pointer-events:auto; }
+  .result-frog{ font-size: clamp(3rem, 12vw, 4.5rem); margin:0 0 1rem; }
+  .result-text{
+    font-family:'Dancing Script', cursive; font-weight:700;
+    font-size: clamp(1.8rem, 7vw, 2.7rem);
+    color: var(--gold-soft); margin:0 0 1rem;
+  }
+  .result-time{
+    font-size:.9rem; letter-spacing:.05em; color: var(--cream); opacity:.65;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .petal, .star{ animation: none !important; }
+    .envelope, .env-flap, .letter, .wax, .letter-content, .btn-yes, .btn-no, .red-overlay, .result-overlay{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="red-overlay" id="redOverlay"></div>
+
+<div class="stars" id="stars"></div>
+<div id="petals"></div>
+
+<main>
+  <p class="eyebrow">A letter for you</p>
+
+  <div class="counter-wrap">
+    <div class="counter-num" id="dayCount">0</div>
+    <div class="counter-label">วันที่เราอยู่ด้วยกัน</div>
+  </div>
+
+  <div class="envelope-stage" id="envStage">
+    <div class="envelope" id="envelope">
+      <div class="letter"></div>
+      <div class="env-back"></div>
+      <div class="env-flap"></div>
+      <div class="wax">♡</div>
+    </div>
+  </div>
+  <p class="hint" id="hintText">แตะที่ซองจดหมายเพื่อเปิดอ่าน</p>
+
+  <div class="letter-content" id="letterContent">
+    <img src="frog.jpg" alt="ตัวนี้อ้วนตูดเหม็น" class="frog-img">
+    <p class="frog-caption">ตัวนี้อ้วนตูดเหม็น 🐸</p>
+  </div>
+
+  <div class="question-stage" id="questionStage">
+    <p class="q-text">รักกันมั้ย?</p>
+    <div class="btn-row">
+      <button class="btn-yes" id="btnYes" type="button">Yes</button>
+      <button class="btn-no" id="btnNo" type="button">No</button>
+    </div>
+  </div>
+</main>
+
+<div class="result-overlay" id="resultOverlay">
+  <div>
+    <p class="result-frog">🐸</p>
+    <p class="result-text">คนตูดเหม็นก็งี้แหละ</p>
+    <p class="result-time" id="resultTime"></p>
+  </div>
+</div>
+
+<footer>made with love — edit this page to make it your own</footer>
+
+<script>
+  // ===== ปรับวันที่เริ่มคบกันตรงนี้ =====
+  const startDate = new Date("2024-11-29"); // <-- แก้เป็นวันที่ของคุณเอง (YYYY-MM-DD)
+
+  const diff = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+  document.getElementById('dayCount').textContent = diff > 0 ? diff.toLocaleString('th-TH') : 0;
+
+  // stars
+  const starsEl = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    const size = Math.random()*2.2+1;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*55+'%';
+    s.style.animationDelay = (Math.random()*3.5)+'s';
+    starsEl.appendChild(s);
+  }
+
+  // petals
+  const petalsEl = document.getElementById('petals');
+  const petalChars = ['❀','✿','♡'];
+  for(let i=0;i<14;i++){
+    const p = document.createElement('div');
+    p.className='petal';
+    p.textContent = petalChars[Math.floor(Math.random()*petalChars.length)];
+    p.style.left = Math.random()*100+'%';
+    p.style.fontSize = (Math.random()*10+10)+'px';
+    p.style.animationDuration = (Math.random()*8+10)+'s';
+    p.style.animationDelay = (Math.random()*10)+'s';
+    petalsEl.appendChild(p);
+  }
+
+  // envelope open
+  const stage = document.getElementById('envStage');
+  const letterContent = document.getElementById('letterContent');
+  const hint = document.getElementById('hintText');
+  let opened = false;
+
+  stage.addEventListener('click', () => {
+    if(opened) return;
+    opened = true;
+    stage.classList.add('open');
+    hint.style.opacity = '0';
+    setTimeout(() => {
+      letterContent.classList.add('show');
+      letterContent.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 700);
+    setTimeout(showQuestion, 2200);
+  });
+
+  // ===== รักกันมั้ย? =====
+  const questionStage = document.getElementById('questionStage');
+  const btnYes = document.getElementById('btnYes');
+  const btnNo = document.getElementById('btnNo');
+  const redOverlay = document.getElementById('redOverlay');
+  const resultOverlay = document.getElementById('resultOverlay');
+  const resultTime = document.getElementById('resultTime');
+
+  const MAX_ESCAPES = 9;
+  let noCount = 0;
+  let questionStartTime = null;
+  let questionShown = false;
+
+  function showQuestion(){
+    if(questionShown) return;
+    questionShown = true;
+    questionStage.classList.add('show');
+    questionStage.scrollIntoView({behavior:'smooth', block:'center'});
+    questionStartTime = Date.now();
+
+    // จัดตำแหน่งเริ่มต้นของปุ่ม No ให้อยู่ข้าง Yes พอดี (ไม่ให้หลุดขอบจอ)
+    requestAnimationFrame(() => {
+      const yesRect = btnYes.getBoundingClientRect();
+      const noRect = btnNo.getBoundingClientRect();
+      const viewW = document.documentElement.clientWidth;
+      let leftPos = yesRect.right + 20;
+      if(leftPos + noRect.width + 16 > viewW){
+        leftPos = viewW - noRect.width - 16;
+      }
+      btnNo.style.position = 'fixed';
+      btnNo.style.left = leftPos + 'px';
+      btnNo.style.top = yesRect.top + 'px';
+    });
+  }
+
+  function fleeNo(){
+    if(noCount >= MAX_ESCAPES) return;
+    noCount++;
+
+    const btnW = btnNo.offsetWidth;
+    const btnH = btnNo.offsetHeight;
+    const margin = 16;
+
+    // ใช้ visualViewport ถ้ามี เพื่อให้ปุ่มอยู่ในกรอบจอที่มองเห็นจริง (กันหลุดขอบบนมือถือ)
+    const vv = window.visualViewport;
+    const viewW = vv ? vv.width : document.documentElement.clientWidth;
+    const viewH = vv ? vv.height : document.documentElement.clientHeight;
+    const offsetX = vv ? vv.offsetLeft : 0;
+    const offsetY = vv ? vv.offsetTop : 0;
+
+    const maxX = Math.max(margin, viewW - btnW - margin);
+    const maxY = Math.max(margin, viewH - btnH - margin);
+    const newX = offsetX + margin + Math.random() * (maxX - margin);
+    const newY = offsetY + margin + Math.random() * (maxY - margin);
+
+    btnNo.style.left = newX + 'px';
+    btnNo.style.top = newY + 'px';
+
+    const noScale = Math.max(0.22, 1 - noCount * 0.09);
+    const yesScale = Math.min(2.8, 1 + noCount * 0.22);
+    btnNo.style.transform = `scale(${noScale})`;
+    btnYes.style.transform = `scale(${yesScale})`;
+
+    redOverlay.style.opacity = Math.min(0.85, noCount * 0.09);
+
+    if(noCount >= MAX_ESCAPES){
+      btnNo.style.opacity = '0';
+      setTimeout(() => { btnNo.style.display = 'none'; }, 400);
+    }
+  }
+
+  // desktop: หนีตอนเมาส์ชี้เข้าใกล้ / มือถือ: หนีตอนแตะ (กันไม่ให้กดโดน)
+  btnNo.addEventListener('mouseenter', fleeNo);
+  btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); fleeNo(); }, {passive:false});
+
+  btnYes.addEventListener('click', () => {
+    const elapsedSec = Math.max(0, Math.floor((Date.now() - questionStartTime) / 1000));
+    const mm = Math.floor(elapsedSec / 60);
+    const ss = elapsedSec % 60;
+    resultTime.textContent = `ใช้เวลาตัดสินใจ ${mm} นาที ${ss} วินาที`;
+    redOverlay.style.opacity = '0';
+    resultOverlay.classList.add('show');
+  });
+</script>
+
+</body>
+</html>
